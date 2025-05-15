@@ -1,10 +1,15 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProductSection from "./components/ProductSection";
+import UpdateProduct from "./components/UpdateProduct";
 
 function App() {
   return (
-    <main className="flex min-h-screen flex-col items-center gap-8 py-8">
-      <ProductSection />
-    </main>
+    <Router>
+      <Routes>
+        <Route path="/" element={<ProductSection />} />
+        <Route path="/update-product/:id" element={<UpdateProduct />} />
+      </Routes>
+    </Router>
   );
 }
 

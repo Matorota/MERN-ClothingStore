@@ -5,7 +5,6 @@ export type Product = {
 };
 
 export type ProductInput = {
-  id: string;
-  title: string; // Title of the product
-  photoSrc: string; // URL of the product's image
+  title: string;
+  photoSrc: string;
 };

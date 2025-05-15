@@ -1,9 +1,18 @@
 import express from "express";
-import { getProducts, postProduct } from "../controllers/product"; // Ensure this path is correct
+import {
+  getProducts,
+  postProduct,
+  //updateProduct,
+  //deleteProduct,
+} from "../controllers/product";
 
 const router = express.Router();
 
-router.get("/products", getProducts);
-router.post("/products", postProduct);
+router.get("/api/products", getProducts);
+router.post("/api/products", postProduct);
+
+//router.put("/api/products/:id", updateProduct);
+
+//router.delete("/api/products/:id", deleteProduct);
 
 export { router as productRoutes };

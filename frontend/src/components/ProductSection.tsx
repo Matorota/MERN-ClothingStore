@@ -1,40 +1,31 @@
 import { useEffect, useState, useTransition } from "react";
 import { Product, ProductInput } from "../types/product";
-import { getProducts, postProduct } from "../api/product";
+import { getProducts, postProduct } from "../api/product"; //deleteProduct
 import { isResponseError } from "../utils/error";
-
+import { useNavigate } from "react-router-dom";
 export default function ProductSection() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState("");
   const [hasChanged, setHasChanged] = useState(true);
   const [formData, setFormData] = useState<ProductInput>({
-    id: "",
     title: "",
     photoSrc: "",
   });
 
+  const navigate = useNavigate();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddProduct = async () => {
-    if (!formData.id || !formData.title || !formData.photoSrc) {
+    if (!formData.title || !formData.photoSrc) {
       alert("Please fill in all fields.");
       return;
     }
-
-    // Convert id to a number if required by the backend
-    const numericId = parseInt(formData.id.toString(), 10);
-    if (isNaN(numericId)) {
-      alert("ID must be a valid number.");
-      return;
-    }
-
     try {
       const response = await postProduct({
-        id: numericId,
         title: formData.title,
         photoSrc: formData.photoSrc,
       });
@@ -43,7 +34,7 @@ export default function ProductSection() {
         return;
       }
       alert("Product added successfully!");
-      setFormData({ id: "", title: "", photoSrc: "" });
+      setFormData({ title: "", photoSrc: "" });
       setHasChanged(true);
     } catch (error) {
       console.error("Failed to add product:", error);
@@ -86,6 +77,20 @@ export default function ProductSection() {
         <div className="p-2">
           <p className="font-medium">{product.title}</p>
         </div>
+        <div>
+          <button
+            className="text-whitemr-4 mr-4 mb-4 rounded-md bg-blue-300 px-2 py-1 font-medium"
+            onClick={() => navigate(`/update-product/${product._id}`)}
+          >
+            Update
+          </button>
+          <button
+            className="rounded-md bg-blue-300 px-2 py-1 font-medium text-white"
+            //onClick={() => handleDeleteProduct(product._id)}
+          >
+            Delete
+          </button>
+        </div>
       </div>
     ));
   };
@@ -94,14 +99,6 @@ export default function ProductSection() {
     <section className="flex flex-col items-center gap-8">
       <h1 className="text-4xl font-bold">List of Products from the Backend</h1>
       <div className="flex flex-col items-center gap-4">
-        <input
-          type="text"
-          name="id"
-          placeholder="Id for clothes"
-          value={formData.id}
-          onChange={handleInputChange}
-          className="rounded-md border border-slate-300 px-2 py-1"
-        />
         <input
           type="text"
           name="title"
