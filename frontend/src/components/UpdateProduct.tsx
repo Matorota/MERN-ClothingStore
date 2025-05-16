@@ -11,7 +11,6 @@ export default function UpdateProduct() {
   const [formData, setFormData] = useState({ title: "", photoSrc: "" });
 
   useEffect(() => {
-    // Fetch the product by ID (you may want a getProductById API)
     getProducts().then((response) => {
       if (!isResponseError(response)) {
         const found = response.data.products.find((p: Product) => p._id === id);
@@ -48,8 +47,6 @@ export default function UpdateProduct() {
       alert("Failed to update product.");
     }
   };
-
-  // ...rest of your component (JSX, etc)...
 
   if (!product) return <div>Loading...</div>;
 

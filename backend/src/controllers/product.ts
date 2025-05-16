@@ -25,7 +25,7 @@ export const postProduct = async (
   }
 };
 
-/*export const updateProduct = async (
+export const updateProduct = async (
   req: Request<{ _id: string }, {}, { title: string; photoSrc: string }>,
   res: Response
 ) => {
@@ -43,10 +43,11 @@ export const postProduct = async (
     );
 
     if (!updatedProduct) {
-      return res.status(404).json({
+      res.status(404).json({
         status: 404,
         message: "Product not found.",
       });
+      return;
     }
 
     res.status(200).json({
@@ -61,7 +62,7 @@ export const postProduct = async (
       validationErrors: null,
     });
   }
-};*/
+};
 
 /*export const deleteProduct = async (
   req: Request<{ id: string }, {}, {}>,

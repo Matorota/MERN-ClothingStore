@@ -15,4 +15,7 @@ export const updateProduct = async (
   _id: string,
   data: { title: string; photoSrc: string },
 ): Promise<ApiResponse<PostProductResponse>> =>
-  await apiClient.put(`/api/products/${_id}`, data);
+  await apiClient.put(`/api/products/${_id}`, {
+    title: data.title,
+    photoSrc: data.photoSrc,
+  });
