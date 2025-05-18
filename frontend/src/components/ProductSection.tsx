@@ -41,7 +41,22 @@ export default function ProductSection() {
       alert("Failed to add product. Please try again.");
     }
   };
-
+  const handleDeleteProduct = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this product?"))
+      return;
+    try {
+      const response = await fetch(`http://localhost:8030/api/products/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        alert("Failed to delete product.");
+        return;
+      }
+      setHasChanged(true); // Refresh product list
+    } catch (error) {
+      alert("Failed to delete product.");
+    }
+  };
   const fetchProducts = async () => {
     startTransition(async () => {
       const response = await getProducts();
@@ -72,6 +87,10 @@ export default function ProductSection() {
             src={product.photoSrc}
             alt={product.title}
             className="h-full w-full object-cover"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src =
+                "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png?v=1530129081";
+            }}
           />
         </div>
         <div className="p-2">
@@ -79,14 +98,14 @@ export default function ProductSection() {
         </div>
         <div>
           <button
-            className="text-whitemr-4 mr-4 mb-4 rounded-md bg-blue-300 px-2 py-1 font-medium"
+            className="mr-4 mb-4 rounded-md bg-blue-300 px-2 py-1 font-medium text-white"
             onClick={() => navigate(`/update-product/${product._id}`)}
           >
             Update
           </button>
           <button
-            className="rounded-md bg-blue-300 px-2 py-1 font-medium text-white"
-            //onClick={() => handleDeleteProduct(product._id)}
+            className="mb-4 rounded-md bg-red-400 px-2 py-1 font-medium text-white"
+            onClick={() => handleDeleteProduct(product._id)}
           >
             Delete
           </button>

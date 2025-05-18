@@ -64,7 +64,7 @@ export const updateProduct = async (
   }
 };
 
-/*export const deleteProduct = async (
+export const deleteProduct = async (
   req: Request<{ id: string }, {}, {}>,
   res: Response
 ) => {
@@ -72,10 +72,11 @@ export const updateProduct = async (
     const { id } = req.params;
     const deletedProduct = await Product.findByIdAndDelete(id);
     if (!deletedProduct) {
-      return res.status(404).json({
+      res.status(404).json({
         status: 404,
         message: "Product not found.",
       });
+      return;
     }
     res.status(200).json({
       status: 200,
@@ -89,7 +90,7 @@ export const updateProduct = async (
       validationErrors: null,
     });
   }
-};*/
+};
 
 export const getProducts = async (_req: Request, res: Response) => {
   // TODO: Implement a try catch util
