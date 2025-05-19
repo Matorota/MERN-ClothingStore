@@ -15,7 +15,7 @@ router.get("/api/products", getProducts);
 router.post("/api/products", postProduct);
 
 router.put("/api/products/:_id", updateProduct);
-router.delete("/api/products/:id", deleteProduct);
+router.delete("/api/products/:_id", deleteProduct);
 //router.delete("/api/products/:id", deleteProduct);
 
 export { router as productRoutes };

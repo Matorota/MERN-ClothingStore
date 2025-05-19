@@ -19,6 +19,7 @@ export const updateProduct = async (
     title: data.title,
     photoSrc: data.photoSrc,
   });
+
 export const deleteProduct = async (
   id: string,
 ): Promise<ApiResponse<{ message: string }>> =>
