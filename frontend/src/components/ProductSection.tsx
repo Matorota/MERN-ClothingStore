@@ -1,8 +1,9 @@
 import { useEffect, useState, useTransition } from "react";
 import { Product, ProductInput } from "../types/product";
-import { getProducts, postProduct } from "../api/product"; //deleteProduct
+import { getProducts, postProduct, deleteProduct } from "../api/product"; //deleteProduct
 import { isResponseError } from "../utils/error";
 import { useNavigate } from "react-router-dom";
+export { getProducts, postProduct, deleteProduct };
 export default function ProductSection() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isPending, startTransition] = useTransition();
@@ -45,11 +46,9 @@ export default function ProductSection() {
     if (!window.confirm("Are you sure you want to delete this product?"))
       return;
     try {
-      const response = await fetch(`http://localhost:8030/api/products/${id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) {
-        alert("Failed to delete product.");
+      const response = await deleteProduct(id);
+      if (isResponseError(response)) {
+        alert(response.error.message || "Failed to delete product.");
         return;
       }
       setHasChanged(true); // Refresh product list
