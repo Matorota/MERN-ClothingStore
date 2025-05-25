@@ -3,16 +3,13 @@ import { Product, ProductInput } from "../types/product";
 import { getProducts, postProduct, deleteProduct } from "../api/product";
 import { isResponseError } from "../utils/error";
 import { useNavigate } from "react-router-dom";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../constants";
 
 export default function ProductSection() {
   const [products, setProducts] = useState<Product[]>([]);
-  //nzn negalejo man skaityti nustatymu nuo api/products tai padariau pokolkas taip
-  const [pagination, setPagination] = useState({
-    currentPage: 1,
-    totalPages: 1,
-    pageSize: 2,
-    totalItems: 0,
-  });
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [totalItems, setTotalItems] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState("");
   const [hasChanged, setHasChanged] = useState(true);
@@ -66,30 +63,27 @@ export default function ProductSection() {
     }
   };
 
-  const fetchProducts = async (page: number = 1, pageSize: number = 10) => {
-    try {
+  const fetchProducts = async () => {
+    startTransition(async () => {
       const response = await getProducts(page, pageSize);
       if (isResponseError(response)) {
         setErrorMessage(response.error.message);
         return;
       }
-      startTransition(() => {
-        setProducts(response.data.products);
-        setPagination(response.data.pagination);
-        setHasChanged(false);
-      });
-    } catch (error) {
-      setErrorMessage("Failed to fetch products. Please try again.");
-    }
+      setProducts(response.data.products);
+      setTotalItems(response.data.pagination.totalItems);
+      setHasChanged(false);
+    });
   };
 
   useEffect(() => {
-    if (hasChanged) fetchProducts(pagination.currentPage, pagination.pageSize);
-  }, [hasChanged, pagination.currentPage]);
+    if (hasChanged) fetchProducts();
+  }, [hasChanged, page]);
 
   const handlePageChange = (newPage: number) => {
-    if (newPage > 0 && newPage <= pagination.totalPages) {
-      setPagination((prev) => ({ ...prev, currentPage: newPage }));
+    const totalPages = Math.ceil(totalItems / pageSize);
+    if (newPage > 0 && newPage <= totalPages) {
+      setPage(newPage);
       setHasChanged(true);
     }
   };
@@ -165,10 +159,10 @@ export default function ProductSection() {
       <div className="flex gap-4">{renderProductSectionContent()}</div>
       <div className="mt-6 flex items-center justify-center gap-4">
         <button
-          onClick={() => handlePageChange(pagination.currentPage - 1)}
-          disabled={pagination.currentPage === 1}
+          onClick={() => handlePageChange(page - 1)}
+          disabled={page === 1}
           className={`rounded-lg px-4 py-2 font-medium transition-all ${
-            pagination.currentPage === 1
+            page === 1
               ? "cursor-not-allowed bg-gray-300 text-gray-500"
               : "bg-blue-500 text-white hover:bg-blue-600"
           }`}
@@ -176,25 +170,28 @@ export default function ProductSection() {
           Previous
         </button>
         <div className="flex items-center gap-2">
-          {Array.from({ length: pagination.totalPages }, (_, index) => (
-            <button
-              key={index + 1}
-              onClick={() => handlePageChange(index + 1)}
-              className={`rounded-lg px-3 py-1 font-medium transition-all ${
-                pagination.currentPage === index + 1
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
+          {Array.from(
+            { length: Math.ceil(totalItems / pageSize) },
+            (_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => handlePageChange(index + 1)}
+                className={`rounded-lg px-3 py-1 font-medium transition-all ${
+                  page === index + 1
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                {index + 1}
+              </button>
+            ),
+          )}
         </div>
         <button
-          onClick={() => handlePageChange(pagination.currentPage + 1)}
-          disabled={pagination.currentPage === pagination.totalPages}
+          onClick={() => handlePageChange(page + 1)}
+          disabled={page === Math.ceil(totalItems / pageSize)}
           className={`rounded-lg px-4 py-2 font-medium transition-all ${
-            pagination.currentPage === pagination.totalPages
+            page === Math.ceil(totalItems / pageSize)
               ? "cursor-not-allowed bg-gray-300 text-gray-500"
               : "bg-blue-500 text-white hover:bg-blue-600"
           }`}

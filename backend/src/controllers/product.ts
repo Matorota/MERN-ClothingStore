@@ -92,10 +92,18 @@ export const deleteProduct = async (
   }
 };
 
-export const getProducts = async (req: Request, res: Response) => {
+interface GetProductsQuery {
+  page?: string;
+  pageSize?: string;
+}
+
+export const getProducts = async (
+  req: Request<{}, {}, {}, GetProductsQuery>,
+  res: Response
+) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const pageSize = parseInt(req.query.pageSize as string) || 10;
+    const page = parseInt(req.query.page || "1");
+    const pageSize = parseInt(req.query.pageSize || "10");
 
     const totalItems = await Product.countDocuments();
     const totalPages = Math.ceil(totalItems / pageSize);

@@ -2,7 +2,6 @@ import { Product, ProductInput } from "../types/product";
 import { GetProductsResponse, PostProductResponse } from "../types/response";
 import { apiClient, ApiResponse } from "./api-client";
 
-// doing this to test how to do pull requestus
 export const getProducts = async (
   page: number = 1,
   pageSize: number = 10,

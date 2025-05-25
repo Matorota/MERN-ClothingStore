@@ -10,5 +10,4 @@ export interface GetProductsResponse {
   };
 }
 
-// pakeiciau GetProductsResponse nes neleido bei kazkodel nemate pagination interface tai perkeliau i cia
 export type PostProductResponse = { addedProduct: Product };
