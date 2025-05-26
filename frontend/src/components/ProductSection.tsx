@@ -4,6 +4,7 @@ import { getProducts, postProduct, deleteProduct } from "../api/product";
 import { isResponseError } from "../utils/error";
 import { useNavigate } from "react-router-dom";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../constants";
+import { getPaginationRange } from "../utils/paginationRange";
 
 export default function ProductSection() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -97,7 +98,7 @@ export default function ProductSection() {
         key={product._id}
         className="flex w-48 flex-col items-center overflow-hidden rounded-lg border border-slate-200 shadow-md"
       >
-        <div className="w-full">
+        <div className="h-64 w-full">
           <img
             src={product.photoSrc}
             alt={product.title}
@@ -105,21 +106,23 @@ export default function ProductSection() {
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src =
                 "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png?v=1530129081";
+              (e.currentTarget as HTMLImageElement).className =
+                "h-full w-full object-cover";
             }}
           />
         </div>
         <div className="p-2">
-          <p className="font-medium">{product.title}</p>
+          <p className="text-center font-medium">{product.title}</p>
         </div>
-        <div>
+        <div className="mt-auto flex gap-4 pb-4">
           <button
-            className="mr-4 mb-4 rounded-md bg-blue-300 px-2 py-1 font-medium text-white"
+            className="rounded-md bg-blue-500 px-3 py-1 text-sm font-medium text-white hover:bg-blue-600"
             onClick={() => navigate(`/update-product/${product._id}`)}
           >
             Update
           </button>
           <button
-            className="mb-4 rounded-md bg-red-400 px-2 py-1 font-medium text-white"
+            className="rounded-md bg-red-500 px-3 py-1 text-sm font-medium text-white hover:bg-red-600"
             onClick={() => handleDeleteProduct(product._id)}
           >
             Delete
@@ -127,6 +130,38 @@ export default function ProductSection() {
         </div>
       </div>
     ));
+  };
+
+  const renderPagination = () => {
+    const paginationRange = getPaginationRange(page, totalPages);
+
+    return (
+      <div className="flex items-center gap-2">
+        {paginationRange.map((item, index) => {
+          if (item === "...") {
+            return (
+              <span key={index} className="px-2 text-gray-500">
+                ...
+              </span>
+            );
+          }
+
+          return (
+            <button
+              key={index}
+              onClick={() => handlePageChange(item as number)}
+              className={`rounded-lg px-3 py-1 font-medium transition-all ${
+                page === item
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              {item}
+            </button>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
@@ -167,23 +202,9 @@ export default function ProductSection() {
               : "bg-blue-500 text-white hover:bg-blue-600"
           }`}
         >
-          Previous
+          Prev
         </button>
-        <div className="flex items-center gap-2">
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button
-              key={index + 1}
-              onClick={() => handlePageChange(index + 1)}
-              className={`rounded-lg px-3 py-1 font-medium transition-all ${
-                page === index + 1
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
+        {renderPagination()}
         <button
           onClick={() => handlePageChange(page + 1)}
           disabled={page === totalPages}

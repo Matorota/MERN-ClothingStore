@@ -1,4 +1,4 @@
-import { Product, ProductInput } from "../types/product";
+import { ProductInput } from "../types/product";
 import { GetProductsResponse, PostProductResponse } from "../types/response";
 import { apiClient, ApiResponse } from "./api-client";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../constants";
