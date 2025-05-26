@@ -106,8 +106,6 @@ export default function ProductSection() {
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src =
                 "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png?v=1530129081";
-              (e.currentTarget as HTMLImageElement).className =
-                "h-full w-full object-cover";
             }}
           />
         </div>
