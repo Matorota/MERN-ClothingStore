@@ -1,10 +1,11 @@
 import { Product, ProductInput } from "../types/product";
 import { GetProductsResponse, PostProductResponse } from "../types/response";
 import { apiClient, ApiResponse } from "./api-client";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../constants";
 
 export const getProducts = async (
-  page: number = 1,
-  pageSize: number = 10,
+  page: number = DEFAULT_PAGE,
+  pageSize: number = DEFAULT_PAGE_SIZE,
 ): Promise<ApiResponse<GetProductsResponse>> =>
   await apiClient.get(`/api/products?page=${page}&pageSize=${pageSize}`);
 
