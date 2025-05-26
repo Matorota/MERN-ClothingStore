@@ -1,10 +1,10 @@
-export type Product = {
-  _id: string; // MongoDB-generated unique identifier
-  title: string; // Title of the product
-  photoSrc: string; // URL of the product's image
-};
-
-export type ProductInput = {
+export interface Product {
+  _id: string;
   title: string;
   photoSrc: string;
-};
+}
+
+export interface ProductInput {
+  title: string;
+  photoSrc: string;
+}

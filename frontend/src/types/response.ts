@@ -1,4 +1,13 @@
 import { Product } from "./product";
 
-export type GetProductsResponse = { products: Array<Product> };
+export interface GetProductsResponse {
+  products: Product[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    pageSize: number;
+    totalItems: number;
+  };
+}
+
 export type PostProductResponse = { addedProduct: Product };

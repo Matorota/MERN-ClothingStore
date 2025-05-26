@@ -1,11 +1,13 @@
-import { Product, ProductInput } from "../types/product";
+import { ProductInput } from "../types/product";
 import { GetProductsResponse, PostProductResponse } from "../types/response";
 import { apiClient, ApiResponse } from "./api-client";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../constants";
 
-// doing this to test how to do pull requestus
-export const getProducts = async (): Promise<
-  ApiResponse<GetProductsResponse>
-> => await apiClient.get("/api/products");
+export const getProducts = async (
+  page: number = DEFAULT_PAGE,
+  pageSize: number = DEFAULT_PAGE_SIZE,
+): Promise<ApiResponse<GetProductsResponse>> =>
+  await apiClient.get(`/api/products?page=${page}&pageSize=${pageSize}`);
 
 export const postProduct = async (
   product: ProductInput,

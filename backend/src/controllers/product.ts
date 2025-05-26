@@ -92,21 +92,36 @@ export const deleteProduct = async (
   }
 };
 
-export const getProducts = async (_req: Request, res: Response) => {
-  // TODO: Implement a try catch util
-  try {
-    const products = await Product.find();
+interface GetProductsQuery {
+  page?: string;
+  pageSize?: string;
+}
 
-    res.status(200).json({
+export const getProducts = async (
+  req: Request<{}, {}, {}, GetProductsQuery>,
+  res: Response
+) => {
+  try {
+    const page = parseInt(req.query.page || "1");
+    const pageSize = parseInt(req.query.pageSize || "10");
+
+    const totalItems = await Product.countDocuments();
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    const products = await Product.find()
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    res.json({
       products,
-      status: 200,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        pageSize,
+        totalItems,
+      },
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).send({
-      status: 500,
-      message: "An error occured while fetching products.",
-      validationErrors: null,
-    });
+    res.status(500).json({ error: "Failed to fetch products" });
   }
 };

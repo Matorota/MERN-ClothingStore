@@ -1,11 +1,17 @@
 import { useEffect, useState, useTransition } from "react";
 import { Product, ProductInput } from "../types/product";
-import { getProducts, postProduct, deleteProduct } from "../api/product"; //deleteProduct
+import { getProducts, postProduct, deleteProduct } from "../api/product";
 import { isResponseError } from "../utils/error";
 import { useNavigate } from "react-router-dom";
-export { getProducts, postProduct, deleteProduct };
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../constants";
+import { getPaginationRange } from "../utils/paginationRange";
+
 export default function ProductSection() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [pageSize] = useState(DEFAULT_PAGE_SIZE);
+
+  const [totalPages, setTotalPages] = useState(1);
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState("");
   const [hasChanged, setHasChanged] = useState(true);
@@ -15,6 +21,7 @@ export default function ProductSection() {
   });
 
   const navigate = useNavigate();
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -42,6 +49,7 @@ export default function ProductSection() {
       alert("Failed to add product. Please try again.");
     }
   };
+
   const handleDeleteProduct = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this product?"))
       return;
@@ -51,26 +59,35 @@ export default function ProductSection() {
         alert(response.error.message || "Failed to delete product.");
         return;
       }
-      setHasChanged(true); // Refresh product list
+      setHasChanged(true);
     } catch (error) {
       alert("Failed to delete product.");
     }
   };
+
   const fetchProducts = async () => {
     startTransition(async () => {
-      const response = await getProducts();
+      const response = await getProducts(page, pageSize);
       if (isResponseError(response)) {
         setErrorMessage(response.error.message);
         return;
       }
       setProducts(response.data.products);
+      setTotalPages(response.data.pagination.totalPages);
       setHasChanged(false);
     });
   };
 
   useEffect(() => {
     if (hasChanged) fetchProducts();
-  }, [hasChanged]);
+  }, [hasChanged, page]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      setPage(newPage);
+      setHasChanged(true);
+    }
+  };
 
   const renderProductSectionContent = () => {
     if (isPending) return <p>Loading...</p>;
@@ -81,7 +98,7 @@ export default function ProductSection() {
         key={product._id}
         className="flex w-48 flex-col items-center overflow-hidden rounded-lg border border-slate-200 shadow-md"
       >
-        <div className="w-full">
+        <div className="h-64 w-full">
           <img
             src={product.photoSrc}
             alt={product.title}
@@ -93,17 +110,17 @@ export default function ProductSection() {
           />
         </div>
         <div className="p-2">
-          <p className="font-medium">{product.title}</p>
+          <p className="text-center font-medium">{product.title}</p>
         </div>
-        <div>
+        <div className="mt-auto flex gap-4 pb-4">
           <button
-            className="mr-4 mb-4 rounded-md bg-blue-300 px-2 py-1 font-medium text-white"
+            className="rounded-md bg-blue-500 px-3 py-1 text-sm font-medium text-white hover:bg-blue-600"
             onClick={() => navigate(`/update-product/${product._id}`)}
           >
             Update
           </button>
           <button
-            className="mb-4 rounded-md bg-red-400 px-2 py-1 font-medium text-white"
+            className="rounded-md bg-red-500 px-3 py-1 text-sm font-medium text-white hover:bg-red-600"
             onClick={() => handleDeleteProduct(product._id)}
           >
             Delete
@@ -111,6 +128,38 @@ export default function ProductSection() {
         </div>
       </div>
     ));
+  };
+
+  const renderPagination = () => {
+    const paginationRange = getPaginationRange(page, totalPages);
+
+    return (
+      <div className="flex items-center gap-2">
+        {paginationRange.map((item, index) => {
+          if (typeof item === "string") {
+            return (
+              <span key={index} className="px-2 text-gray-500">
+                ...
+              </span>
+            );
+          }
+
+          return (
+            <button
+              key={index}
+              onClick={() => handlePageChange(item)}
+              className={`rounded-lg px-3 py-1 font-medium transition-all ${
+                page === item
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              {item}
+            </button>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
@@ -141,6 +190,31 @@ export default function ProductSection() {
         </button>
       </div>
       <div className="flex gap-4">{renderProductSectionContent()}</div>
+      <div className="mt-6 flex items-center justify-center gap-4">
+        <button
+          onClick={() => handlePageChange(page - 1)}
+          disabled={page === 1}
+          className={`rounded-lg px-4 py-2 font-medium transition-all ${
+            page === 1
+              ? "cursor-not-allowed bg-gray-300 text-gray-500"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+        >
+          Prev
+        </button>
+        {renderPagination()}
+        <button
+          onClick={() => handlePageChange(page + 1)}
+          disabled={page === totalPages}
+          className={`rounded-lg px-4 py-2 font-medium transition-all ${
+            page === totalPages
+              ? "cursor-not-allowed bg-gray-300 text-gray-500"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+        >
+          Next
+        </button>
+      </div>
     </section>
   );
 }
