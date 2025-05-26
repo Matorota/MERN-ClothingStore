@@ -2,8 +2,8 @@ export const getPaginationRange = (
   currentPage: number,
   totalPages: number,
   range: number = 1,
-): (number | string)[] => {
-  const pages: (number | string)[] = [];
+): (number | "...")[] => {
+  const pages: (number | "...")[] = [];
 
   for (let i = 1; i <= totalPages; i++) {
     if (

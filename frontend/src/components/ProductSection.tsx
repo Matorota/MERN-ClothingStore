@@ -136,7 +136,7 @@ export default function ProductSection() {
     return (
       <div className="flex items-center gap-2">
         {paginationRange.map((item, index) => {
-          if (item === "...") {
+          if (typeof item === "string") {
             return (
               <span key={index} className="px-2 text-gray-500">
                 ...
@@ -147,7 +147,7 @@ export default function ProductSection() {
           return (
             <button
               key={index}
-              onClick={() => handlePageChange(item as number)}
+              onClick={() => handlePageChange(item)}
               className={`rounded-lg px-3 py-1 font-medium transition-all ${
                 page === item
                   ? "bg-blue-500 text-white"
