@@ -27,26 +27,25 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="flex items-center gap-2">
-        <input
-          type="text"
-          placeholder="Search by title..."
-          value={input}
-          onChange={handleInputChange}
-          className="rounded-md border border-slate-300 px-2 py-1"
-        />
-        <button
-          onClick={handleSearch}
-          className="rounded-md bg-blue-500 px-2 py-1 text-sm text-white hover:bg-blue-600"
-        >
-          Search
-        </button>
-      </div>
+    <div className="flex w-full max-w-xs flex-col items-center gap-2">
+      <input
+        type="text"
+        placeholder="Search by title..."
+        value={input}
+        onChange={handleInputChange}
+        className="w-full rounded-md border border-slate-300 px-2 py-1"
+      />
+      <button
+        onClick={handleSearch}
+        className="w-full rounded-md bg-blue-300 px-2 py-1 text-base font-medium text-white"
+        style={{ minHeight: "40px" }}
+      >
+        Search
+      </button>
       <span
         onClick={handleClear}
         className="mt-1 cursor-pointer text-xs text-gray-500 underline hover:text-gray-700"
-        style={{ fontSize: "0.75rem", width: "60px", textAlign: "center" }}
+        style={{ fontSize: "0.75rem", width: "100%", textAlign: "center" }}
       >
         Clear
       </span>
