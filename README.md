@@ -22,7 +22,7 @@ This is a simple full-stack MERN template built with TypeScript. It provides a r
 
 ## Getting Started
 
-### 1. Install Dependencies
+### Install Dependencies
 
 **Frontend:**
 ```bash
