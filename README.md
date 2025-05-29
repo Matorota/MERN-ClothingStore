@@ -39,10 +39,10 @@ npm run dev
 
 ## Then visit the following URL in your browser:
 
-### Create .env  put in the file and fill them with your own info:
+#### Create .env  put in the file and fill them with your own info:
 
 MONGODB_CONNECTION_STRING=
 PORT=
 FRONTEND_BASE_URL=
 
-### Example: MONGODB_CONNECTION_STRING=http://localhost:<YOUR_BACKEND_PORT>/api/seed-db
+#### Example: MONGODB_CONNECTION_STRING=http://localhost:<YOUR_BACKEND_PORT>/api/seed-db
