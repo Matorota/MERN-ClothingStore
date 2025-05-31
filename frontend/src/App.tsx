@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProductSection from "./components/ProductSection";
 import UpdateProduct from "./components/UpdateProduct";
-import Layout from "./components/Layout";
+import Layout from "./components/Layouts/Layout";
 import StartPage from "./pages/StartPage";
 
 function App() {
