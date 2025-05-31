@@ -5,8 +5,6 @@ import "dotenv/config";
 import { logDbConnection } from "./config/db";
 import { productRoutes } from "./routes/product";
 
-
-
 const PORT = process.env.PORT;
 const app = express();
 

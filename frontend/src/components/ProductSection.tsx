@@ -5,13 +5,13 @@ import { isResponseError } from "../utils/error";
 import { useNavigate } from "react-router-dom";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../constants";
 import { getPaginationRange } from "../utils/paginationRange";
+import ProductSearch from "../utils/ProductSeach";
 
 export default function ProductSection() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [pageSize] = useState(DEFAULT_PAGE_SIZE);
 
-  const [totalPages, setTotalPages] = useState(1);
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState("");
   const [hasChanged, setHasChanged] = useState(true);
@@ -20,7 +20,65 @@ export default function ProductSection() {
     photoSrc: "",
   });
 
+  const [search, setSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
   const navigate = useNavigate();
+
+  const fetchAllProducts = async () => {
+    startTransition(async () => {
+      let all: Product[] = [];
+      let pageNum = 1;
+      let keepFetching = true;
+      while (keepFetching) {
+        const response = await getProducts(pageNum, 50);
+        if (isResponseError(response)) {
+          setErrorMessage(response.error.message);
+          break;
+        }
+        all = all.concat(response.data.products);
+        if (
+          response.data.pagination.currentPage >=
+          response.data.pagination.totalPages
+        ) {
+          keepFetching = false;
+        } else {
+          pageNum++;
+        }
+      }
+      setAllProducts(all);
+      setHasChanged(false);
+    });
+  };
+
+  useEffect(() => {
+    fetchAllProducts();
+  }, [hasChanged]);
+
+  const filteredProducts = searchQuery
+    ? allProducts.filter((product) =>
+        product.title.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+    : allProducts;
+
+  const filteredTotalPages = Math.max(
+    1,
+    Math.ceil(filteredProducts.length / pageSize),
+  );
+  const paginatedProducts = filteredProducts.slice(
+    (page - 1) * pageSize,
+    page * pageSize,
+  );
+
+  useEffect(() => {
+    if (page > filteredTotalPages) setPage(1);
+  }, [searchQuery, filteredTotalPages]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage > 0 && newPage <= filteredTotalPages) {
+      setPage(newPage);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -65,35 +123,15 @@ export default function ProductSection() {
     }
   };
 
-  const fetchProducts = async () => {
-    startTransition(async () => {
-      const response = await getProducts(page, pageSize);
-      if (isResponseError(response)) {
-        setErrorMessage(response.error.message);
-        return;
-      }
-      setProducts(response.data.products);
-      setTotalPages(response.data.pagination.totalPages);
-      setHasChanged(false);
-    });
-  };
-
-  useEffect(() => {
-    if (hasChanged) fetchProducts();
-  }, [hasChanged, page]);
-
-  const handlePageChange = (newPage: number) => {
-    if (newPage > 0 && newPage <= totalPages) {
-      setPage(newPage);
-      setHasChanged(true);
-    }
-  };
-
   const renderProductSectionContent = () => {
     if (isPending) return <p>Loading...</p>;
     if (errorMessage) return <p>{errorMessage}</p>;
 
-    return products.map((product) => (
+    if (paginatedProducts.length === 0) {
+      return <p>No products found.</p>;
+    }
+
+    return paginatedProducts.map((product) => (
       <div
         key={product._id}
         className="flex w-48 flex-col items-center overflow-hidden rounded-lg border border-slate-200 shadow-md"
@@ -131,7 +169,7 @@ export default function ProductSection() {
   };
 
   const renderPagination = () => {
-    const paginationRange = getPaginationRange(page, totalPages);
+    const paginationRange = getPaginationRange(page, filteredTotalPages);
 
     return (
       <div className="flex items-center gap-2">
@@ -165,6 +203,20 @@ export default function ProductSection() {
   return (
     <section className="flex flex-col items-center gap-8">
       <h1 className="text-4xl font-bold">List of Products from the Backend</h1>
+      <p>Search is work in progress need to be compatible with backend</p>
+      <ProductSearch
+        value={search}
+        onSearch={(query) => {
+          setSearch(query);
+          setSearchQuery(query);
+          setPage(1);
+        }}
+        onClear={() => {
+          setSearch("");
+          setSearchQuery("");
+          setPage(1);
+        }}
+      />
       <div className="flex flex-col items-center gap-4">
         <input
           type="text"
@@ -205,9 +257,9 @@ export default function ProductSection() {
         {renderPagination()}
         <button
           onClick={() => handlePageChange(page + 1)}
-          disabled={page === totalPages}
+          disabled={page === filteredTotalPages}
           className={`rounded-lg px-4 py-2 font-medium transition-all ${
-            page === totalPages
+            page === filteredTotalPages
               ? "cursor-not-allowed bg-gray-300 text-gray-500"
               : "bg-blue-500 text-white hover:bg-blue-600"
           }`}

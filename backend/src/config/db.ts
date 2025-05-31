@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export const logDbConnection = async () => {
   try {
     const connected = await mongoose.connect(
-      process.env.MONGODB_CONNECTION_STRING!,
+      process.env.MONGODB_CONNECTION_STRING!
     );
 
     if (connected) {

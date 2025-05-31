@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getProducts, postProduct, updateProduct } from "../api/product";
+import { getProducts, updateProduct } from "../api/product";
 import { isResponseError } from "../utils/error";
 import { Product } from "../types/product";
 
