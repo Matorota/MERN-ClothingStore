@@ -45,4 +45,5 @@ MONGODB_CONNECTION_STRING=
 PORT=
 FRONTEND_BASE_URL=
 
+##### Also dont forget to connect back and frontend before running
 #### Example: MONGODB_CONNECTION_STRING=http://localhost:<YOUR_BACKEND_PORT>/api/seed-db
