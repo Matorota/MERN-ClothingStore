@@ -6,6 +6,7 @@ import StartPage from "./pages/StartPage";
 import Contact from "./pages/Contact";
 import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
+import Description from "./pages/Description";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/support" element={<Contact />} />
           <Route path="/features" element={<Features />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/description" element={<Description />} />
 
           <Route path="/update-product/:id" element={<UpdateProduct />} />
         </Routes>
