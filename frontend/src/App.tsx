@@ -19,7 +19,6 @@ function App() {
           <Route path="/features" element={<Features />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/description" element={<Description />} />
-
           <Route path="/update-product/:id" element={<UpdateProduct />} />
         </Routes>
       </Layout>

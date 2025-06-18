@@ -11,14 +11,30 @@ export default function Description() {
           <h2 className="mb-6 text-4xl font-extrabold text-blue-700 drop-shadow sm:text-5xl">
             Welcome to Your Ultimate Shopping Destination!
           </h2>
+          <div className="mb-6 h-2 w-24 rounded bg-gradient-to-r from-blue-400 via-pink-400 to-orange-400" />
           <p className="mb-6 max-w-2xl text-xl leading-relaxed font-medium text-gray-800 drop-shadow">
-            Step into a world where shopping is not just easy—it's exciting! Our
-            platform brings you the freshest trends, exclusive deals, and a
-            handpicked selection of products for every style and need. Whether
-            you're revamping your wardrobe, upgrading your gadgets, or searching
-            for the perfect gift, we've got you covered.
+            Discover a new era of online shopping with us! Our store is
+            dedicated to bringing you a seamless, enjoyable, and secure shopping
+            experience. We offer a vast selection of the latest products, from
+            trendy fashion and must-have gadgets to unique gifts and everyday
+            essentials. Every item is carefully curated for quality and value,
+            ensuring you get only the best.
+            <br />
+            <br />
+            Enjoy exclusive deals, seasonal promotions, and a user-friendly
+            platform designed to make browsing and purchasing effortless. Our
+            intuitive search and personalized recommendations help you find
+            exactly what you need, while our fast and reliable delivery ensures
+            your order arrives at your doorstep in no time.
+            <br />
+            <br />
+            We pride ourselves on exceptional customer service, with a dedicated
+            support team ready to assist you 24/7. Whether you’re shopping for
+            yourself or searching for the perfect gift, our store is your
+            trusted partner for all things shopping. Join our growing community
+            and experience the difference today!
           </p>
-
+          <div className="mb-6 flex flex-wrap gap-6"></div>
           <p className="text-lg font-semibold text-blue-600">
             Dive in, explore, and let us make your shopping journey
             unforgettable!
@@ -26,7 +42,7 @@ export default function Description() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <img
-            src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=600&q=80"
+            src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=600&q=80"
             alt="Happy Shopping"
             className="w-full max-w-md rounded-xl border-4 border-white object-cover shadow-2xl"
           />
