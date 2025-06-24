@@ -1,34 +1,52 @@
 import { useRef, useState } from "react";
-import emailjs from "@emailjs/browser";
 
 export default function Contact() {
-  const form = useRef<HTMLFormElement>(null);
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const form = useRef<HTMLFormElement>(null);
 
-  const sendEmail = (e: React.FormEvent) => {
+  const sendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.current) return;
 
     setLoading(true);
-    emailjs
-      .sendForm(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-        form.current,
-        import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
-      )
-      .then(
-        () => {
-          setSent(true);
-          setLoading(false);
-          if (form.current) form.current.reset();
-        },
-        (error) => {
-          alert("Failed to send: " + error.text);
-          setLoading(false);
+
+    const formData = new FormData(form.current);
+    const data = {
+      name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      message: formData.get("message") as string,
+    };
+
+    console.log("Sending data:", data);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_SERVER_URL}/api/send-email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
         },
       );
+
+      const result = await response.json();
+      console.log("Response:", result);
+
+      if (response.ok) {
+        setSent(true);
+        setLoading(false);
+        if (form.current) form.current.reset();
+      } else {
+        throw new Error(result.message || "Failed to send email");
+      }
+    } catch (error) {
+      console.error("Contact form error:", error);
+      alert("Failed to send message. Please try again.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,7 +62,7 @@ export default function Contact() {
         {sent ? (
           <div className="py-8 text-center">
             <div className="mb-4 text-lg font-semibold text-green-600">
-              Thank you! Your message has been sent.
+              Thank you! Your message has been sent to matasmatasp@gmail.com!
             </div>
             <button
               onClick={() => setSent(false)}
@@ -58,13 +76,13 @@ export default function Contact() {
             <div>
               <label
                 className="mb-1 block font-semibold text-gray-700"
-                htmlFor="from_name"
+                htmlFor="name"
               >
                 Name
               </label>
               <input
-                id="from_name"
-                name="from_name"
+                id="name"
+                name="name"
                 type="text"
                 required
                 className="w-full rounded-md border border-blue-200 px-4 py-2 focus:ring-2 focus:ring-blue-300 focus:outline-none"
@@ -74,17 +92,17 @@ export default function Contact() {
             <div>
               <label
                 className="mb-1 block font-semibold text-gray-700"
-                htmlFor="from_email"
+                htmlFor="email"
               >
-                Email
+                Your Email (any email works)
               </label>
               <input
-                id="from_email"
-                name="from_email"
+                id="email"
+                name="email"
                 type="email"
                 required
                 className="w-full rounded-md border border-blue-200 px-4 py-2 focus:ring-2 focus:ring-blue-300 focus:outline-none"
-                placeholder="you@email.com"
+                placeholder="matas.strimaitis@stud.viko.lt"
               />
             </div>
             <div>
@@ -113,7 +131,7 @@ export default function Contact() {
           </form>
         )}
         <div className="mt-8 flex flex-col items-center gap-2 text-sm text-gray-500">
-          <span>Or reach us at:</span>
+          <span>Messages will be sent to:</span>
           <a
             href="mailto:matasmatasp@gmail.com"
             className="font-medium text-blue-600 hover:underline"
