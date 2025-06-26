@@ -1,31 +1,32 @@
 import { Request, Response } from "express";
 import { Resend } from "resend";
 
-const resendApiKey = process.env.RESEND_API_KEY!;
-
-console.log("RESEND_API_KEY in controller:", resendApiKey);
-
-if (!resendApiKey) {
-  console.error("RESEND_API_KEY is missing!");
-  throw new Error("RESEND_API_KEY environment variable is required");
-}
-
-const resend = new Resend(resendApiKey);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendContactEmail = async (
   req: Request<{}, {}, { name: string; email: string; message: string }>,
   res: Response
-) => {
+): Promise<void> => {
   try {
     const { name, email, message } = req.body;
 
     console.log("Received contact form data:", { name, email, message });
 
     if (!name || !email || !message) {
-      return res.status(400).json({
+      res.status(400).json({
         status: 400,
         message: "All fields are required",
       });
+      return;
+    }
+
+    if (!process.env.RESEND_API_KEY) {
+      console.error("RESEND_API_KEY not found in environment variables");
+      res.status(500).json({
+        status: 500,
+        message: "Email service not configured",
+      });
+      return;
     }
 
     console.log("Sending email with Resend...");
@@ -54,11 +55,12 @@ export const sendContactEmail = async (
 
     if (error) {
       console.error("Resend error:", error);
-      return res.status(400).json({
+      res.status(400).json({
         status: 400,
         message: "Failed to send email",
         error: error,
       });
+      return;
     }
 
     console.log("Email sent successfully:", data);

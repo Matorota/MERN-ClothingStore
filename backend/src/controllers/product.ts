@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import Product from "../models/product";
+
 export const postProduct = async (
   req: Request<{}, {}, { title: string; photoSrc: string }>,
   res: Response
-) => {
+): Promise<void> => {
   try {
     const body = req.body;
     const newProduct = await Product.create({
@@ -28,7 +29,7 @@ export const postProduct = async (
 export const updateProduct = async (
   req: Request<{ _id: string }, {}, { title: string; photoSrc: string }>,
   res: Response
-) => {
+): Promise<void> => {
   try {
     const { _id } = req.params;
     const body = req.body;
@@ -67,7 +68,7 @@ export const updateProduct = async (
 export const deleteProduct = async (
   req: Request<{ id: string }, {}, {}>,
   res: Response
-) => {
+): Promise<void> => {
   try {
     const { id } = req.params;
     const deletedProduct = await Product.findByIdAndDelete(id);
@@ -95,22 +96,36 @@ export const deleteProduct = async (
 interface GetProductsQuery {
   page?: string;
   pageSize?: string;
+  search?: string;
 }
 
 export const getProducts = async (
   req: Request<{}, {}, {}, GetProductsQuery>,
   res: Response
-) => {
+): Promise<void> => {
   try {
     const page = parseInt(req.query.page || "1");
     const pageSize = parseInt(req.query.pageSize || "10");
+    const searchQuery = req.query.search || "";
 
-    const totalItems = await Product.countDocuments();
+    console.log("Search query:", searchQuery);
+
+    const searchFilter = searchQuery
+      ? {
+          title: {
+            $regex: searchQuery,
+            $options: "i",
+          },
+        }
+      : {};
+
+    const totalItems = await Product.countDocuments(searchFilter);
     const totalPages = Math.ceil(totalItems / pageSize);
 
-    const products = await Product.find()
+    const products = await Product.find(searchFilter)
       .skip((page - 1) * pageSize)
-      .limit(pageSize);
+      .limit(pageSize)
+      .sort({ _id: -1 });
 
     res.json({
       products,
@@ -120,8 +135,10 @@ export const getProducts = async (
         pageSize,
         totalItems,
       },
+      search: searchQuery,
     });
   } catch (error) {
+    console.error("Error fetching products:", error);
     res.status(500).json({ error: "Failed to fetch products" });
   }
 };

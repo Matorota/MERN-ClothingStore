@@ -8,6 +8,7 @@ export interface GetProductsResponse {
     pageSize: number;
     totalItems: number;
   };
+  search?: string;
 }
 
 export type PostProductResponse = { addedProduct: Product };

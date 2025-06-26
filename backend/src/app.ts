@@ -12,7 +12,6 @@ const app = express();
 app.use(express.json());
 app.use(cors({ origin: process.env.FRONTEND_BASE_URL }));
 
-// API routes
 app.use("/api", productRoutes);
 app.use("/api", emailRoutes);
 
