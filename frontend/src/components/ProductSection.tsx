@@ -11,6 +11,7 @@ export default function ProductSection() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [pageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState("");
@@ -101,6 +102,7 @@ export default function ProductSection() {
       }
       alert("Product added successfully!");
       setFormData({ title: "", photoSrc: "" });
+      setShowAddForm(false);
       setHasChanged(true);
     } catch (error) {
       console.error("Failed to add product:", error);
@@ -124,19 +126,20 @@ export default function ProductSection() {
   };
 
   const renderProductSectionContent = () => {
-    if (isPending) return <p>Loading...</p>;
-    if (errorMessage) return <p>{errorMessage}</p>;
+    if (isPending) return <p className="text-lg text-gray-600">Loading...</p>;
+    if (errorMessage)
+      return <p className="text-lg text-red-600">{errorMessage}</p>;
 
     if (paginatedProducts.length === 0) {
-      return <p>No products found.</p>;
+      return <p className="text-lg text-gray-600">No products found.</p>;
     }
 
     return paginatedProducts.map((product) => (
       <div
         key={product._id}
-        className="flex w-48 flex-col items-center overflow-hidden rounded-lg border border-slate-200 shadow-md"
+        className="flex w-64 flex-col items-center overflow-hidden rounded-lg border border-slate-200 shadow-md"
       >
-        <div className="h-64 w-full">
+        <div className="h-80 w-full">
           <img
             src={product.photoSrc}
             alt={product.title}
@@ -201,72 +204,131 @@ export default function ProductSection() {
   };
 
   return (
-    <section className="flex flex-col items-center gap-8">
-      <h1 className="text-4xl font-bold">List of Products from the Backend</h1>
-      <p>Search is work in progress need to be compatible with backend</p>
-      <ProductSearch
-        value={search}
-        onSearch={(query) => {
-          setSearch(query);
-          setSearchQuery(query);
-          setPage(1);
-        }}
-        onClear={() => {
-          setSearch("");
-          setSearchQuery("");
-          setPage(1);
-        }}
-      />
-      <div className="flex flex-col items-center gap-4">
-        <input
-          type="text"
-          name="title"
-          placeholder="Product Title"
-          value={formData.title}
-          onChange={handleInputChange}
-          className="rounded-md border border-slate-300 px-2 py-1"
-        />
-        <input
-          type="text"
-          name="photoSrc"
-          placeholder="Photo URL"
-          value={formData.photoSrc}
-          onChange={handleInputChange}
-          className="rounded-md border border-slate-300 px-2 py-1"
-        />
-        <button
-          onClick={handleAddProduct}
-          className="rounded-md bg-blue-300 px-2 py-1 font-medium text-white"
-        >
-          Add Product
-        </button>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-12">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mb-12 text-center">
+          <h1 className="mb-4 text-5xl font-bold text-gray-900">
+            Product Gallery
+          </h1>
+          <p className="text-xl text-gray-600">
+            Discover and manage your product collection
+          </p>
+        </div>
+
+        <div className="mb-10 flex justify-center">
+          <div className="w-full max-w-2xl rounded-2xl border border-white/30 bg-white/80 p-6 shadow-xl backdrop-blur-sm">
+            <h3 className="mb-4 text-center text-lg font-semibold text-gray-800">
+              Search Products
+            </h3>
+            <div className="flex flex-col items-center">
+              <ProductSearch
+                value={search}
+                onSearch={(query) => {
+                  setSearch(query);
+                  setSearchQuery(query);
+                  setPage(1);
+                }}
+                onClear={() => {
+                  setSearch("");
+                  setSearchQuery("");
+                  setPage(1);
+                }}
+              />
+            </div>
+            {searchQuery && (
+              <div className="mt-4 rounded-lg bg-blue-50 p-3 text-center">
+                <p className="text-sm text-blue-700">
+                  Showing results for "
+                  <span className="font-bold">{searchQuery}</span>"
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="mb-10 text-center">
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700"
+          >
+            {showAddForm ? "Cancel" : "Add Product"}
+          </button>
+        </div>
+
+        {showAddForm && (
+          <div className="mx-auto mb-12 max-w-lg rounded-2xl border border-white/30 bg-white/80 p-8 shadow-xl backdrop-blur-sm">
+            <h2 className="mb-6 text-center text-2xl font-bold text-gray-800">
+              Create New Product
+            </h2>
+            <div className="space-y-6">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  Product Title
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  placeholder="Enter an amazing product name..."
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-lg transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-200"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  Image URL
+                </label>
+                <input
+                  type="text"
+                  name="photoSrc"
+                  placeholder="Paste your product image URL here..."
+                  value={formData.photoSrc}
+                  onChange={handleInputChange}
+                  className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-lg transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-200"
+                />
+              </div>
+              <button
+                onClick={handleAddProduct}
+                className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
+              >
+                Add Product
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="mb-10 rounded-2xl border border-white/20 bg-white/50 p-8 shadow-lg backdrop-blur-sm">
+          <div className="flex flex-wrap justify-center gap-6">
+            {renderProductSectionContent()}
+          </div>
+        </div>
+
+        <div className="mb-8 flex items-center justify-center gap-4">
+          <button
+            onClick={() => handlePageChange(page - 1)}
+            disabled={page === 1}
+            className={`rounded-xl px-6 py-3 font-semibold transition-all duration-200 ${
+              page === 1
+                ? "cursor-not-allowed bg-gray-200 text-gray-400"
+                : "bg-white text-gray-700 shadow-md hover:bg-blue-50 hover:text-blue-600 hover:shadow-lg"
+            }`}
+          >
+            ← Previous
+          </button>
+          {renderPagination()}
+          <button
+            onClick={() => handlePageChange(page + 1)}
+            disabled={page === filteredTotalPages}
+            className={`rounded-xl px-6 py-3 font-semibold transition-all duration-200 ${
+              page === filteredTotalPages
+                ? "cursor-not-allowed bg-gray-200 text-gray-400"
+                : "bg-white text-gray-700 shadow-md hover:bg-blue-50 hover:text-blue-600 hover:shadow-lg"
+            }`}
+          >
+            Next →
+          </button>
+        </div>
       </div>
-      <div className="flex gap-4">{renderProductSectionContent()}</div>
-      <div className="mt-6 flex items-center justify-center gap-4">
-        <button
-          onClick={() => handlePageChange(page - 1)}
-          disabled={page === 1}
-          className={`rounded-lg px-4 py-2 font-medium transition-all ${
-            page === 1
-              ? "cursor-not-allowed bg-gray-300 text-gray-500"
-              : "bg-blue-500 text-white hover:bg-blue-600"
-          }`}
-        >
-          Prev
-        </button>
-        {renderPagination()}
-        <button
-          onClick={() => handlePageChange(page + 1)}
-          disabled={page === filteredTotalPages}
-          className={`rounded-lg px-4 py-2 font-medium transition-all ${
-            page === filteredTotalPages
-              ? "cursor-not-allowed bg-gray-300 text-gray-500"
-              : "bg-blue-500 text-white hover:bg-blue-600"
-          }`}
-        >
-          Next
-        </button>
-      </div>
-    </section>
+    </div>
   );
 }
