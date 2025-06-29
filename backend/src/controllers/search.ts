@@ -22,12 +22,12 @@ export const searchProducts = async (
 
     console.log("Advanced search:", { searchQuery, sortBy, sortOrder });
 
-    const searchFilter = searchQuery
+    const searchFilter = searchQuery.trim()
       ? {
           $or: [
             {
               title: {
-                $regex: searchQuery,
+                $regex: searchQuery.trim(),
                 $options: "i",
               },
             },
@@ -62,7 +62,10 @@ export const searchProducts = async (
     });
   } catch (error) {
     console.error("Error searching products:", error);
-    res.status(500).json({ error: "Failed to search products" });
+    res.status(500).json({
+      error: "Failed to search products",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
 
@@ -95,6 +98,9 @@ export const getProductSuggestions = async (
     });
   } catch (error) {
     console.error("Error getting suggestions:", error);
-    res.status(500).json({ error: "Failed to get suggestions" });
+    res.status(500).json({
+      error: "Failed to get suggestions",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };

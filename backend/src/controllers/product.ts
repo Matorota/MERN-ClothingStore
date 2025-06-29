@@ -17,10 +17,10 @@ export const postProduct = async (
       status: 200,
     });
   } catch (error) {
-    console.error("Klaida pridedant produktą:", error);
+    console.error("Error adding product:", error);
     res.status(500).send({
       status: 500,
-      message: "An error occured while adding a product.",
+      message: "An error occurred while adding a product.",
       validationErrors: null,
     });
   }
@@ -108,12 +108,12 @@ export const getProducts = async (
     const pageSize = parseInt(req.query.pageSize || "10");
     const searchQuery = req.query.search || "";
 
-    console.log("Search query:", searchQuery);
+    console.log("Search query received:", searchQuery);
 
-    const searchFilter = searchQuery
+    const searchFilter = searchQuery.trim()
       ? {
           title: {
-            $regex: searchQuery,
+            $regex: searchQuery.trim(),
             $options: "i",
           },
         }
@@ -127,6 +127,10 @@ export const getProducts = async (
       .limit(pageSize)
       .sort({ _id: -1 });
 
+    console.log(
+      `Found ${products.length} products for search: "${searchQuery}"`
+    );
+
     res.json({
       products,
       pagination: {
@@ -139,6 +143,9 @@ export const getProducts = async (
     });
   } catch (error) {
     console.error("Error fetching products:", error);
-    res.status(500).json({ error: "Failed to fetch products" });
+    res.status(500).json({
+      error: "Failed to fetch products",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };

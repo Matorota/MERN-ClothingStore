@@ -8,10 +8,12 @@ import { getPaginationRange } from "../utils/paginationRange";
 import ProductSearch from "../utils/ProductSeach";
 
 export default function ProductSection() {
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [pageSize] = useState(DEFAULT_PAGE_SIZE);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState("");
@@ -26,58 +28,40 @@ export default function ProductSection() {
 
   const navigate = useNavigate();
 
-  const fetchAllProducts = async () => {
+  const fetchProducts = async (
+    searchTerm: string = "",
+    currentPage: number = page,
+  ) => {
     startTransition(async () => {
-      let all: Product[] = [];
-      let pageNum = 1;
-      let keepFetching = true;
-      while (keepFetching) {
-        const response = await getProducts(pageNum, 50);
-        if (isResponseError(response)) {
-          setErrorMessage(response.error.message);
-          break;
-        }
-        all = all.concat(response.data.products);
-        if (
-          response.data.pagination.currentPage >=
-          response.data.pagination.totalPages
-        ) {
-          keepFetching = false;
-        } else {
-          pageNum++;
-        }
+      const response = await getProducts(currentPage, pageSize, searchTerm);
+      if (isResponseError(response)) {
+        setErrorMessage(response.error.message);
+        return;
       }
-      setAllProducts(all);
+
+      setProducts(response.data.products);
+      setTotalPages(response.data.pagination.totalPages);
+      setTotalItems(response.data.pagination.totalItems);
+      setErrorMessage("");
       setHasChanged(false);
     });
   };
 
   useEffect(() => {
-    fetchAllProducts();
-  }, [hasChanged]);
-
-  const filteredProducts = searchQuery
-    ? allProducts.filter((product) =>
-        product.title.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
-    : allProducts;
-
-  const filteredTotalPages = Math.max(
-    1,
-    Math.ceil(filteredProducts.length / pageSize),
-  );
-  const paginatedProducts = filteredProducts.slice(
-    (page - 1) * pageSize,
-    page * pageSize,
-  );
+    if (hasChanged) {
+      fetchProducts(searchQuery, page);
+    }
+  }, [hasChanged, page]);
 
   useEffect(() => {
-    if (page > filteredTotalPages) setPage(1);
-  }, [searchQuery, filteredTotalPages]);
+    fetchProducts(searchQuery, 1);
+    setPage(1);
+  }, [searchQuery]);
 
   const handlePageChange = (newPage: number) => {
-    if (newPage > 0 && newPage <= filteredTotalPages) {
+    if (newPage > 0 && newPage <= totalPages) {
       setPage(newPage);
+      setHasChanged(true);
     }
   };
 
@@ -130,11 +114,11 @@ export default function ProductSection() {
     if (errorMessage)
       return <p className="text-lg text-red-600">{errorMessage}</p>;
 
-    if (paginatedProducts.length === 0) {
+    if (products.length === 0) {
       return <p className="text-lg text-gray-600">No products found.</p>;
     }
 
-    return paginatedProducts.map((product) => (
+    return products.map((product) => (
       <div
         key={product._id}
         className="flex w-64 flex-col items-center overflow-hidden rounded-lg border border-slate-200 shadow-md"
@@ -172,7 +156,7 @@ export default function ProductSection() {
   };
 
   const renderPagination = () => {
-    const paginationRange = getPaginationRange(page, filteredTotalPages);
+    const paginationRange = getPaginationRange(page, totalPages);
 
     return (
       <div className="flex items-center gap-2">
@@ -226,19 +210,17 @@ export default function ProductSection() {
                 onSearch={(query) => {
                   setSearch(query);
                   setSearchQuery(query);
-                  setPage(1);
                 }}
                 onClear={() => {
                   setSearch("");
                   setSearchQuery("");
-                  setPage(1);
                 }}
               />
             </div>
             {searchQuery && (
               <div className="mt-4 rounded-lg bg-blue-50 p-3 text-center">
                 <p className="text-sm text-blue-700">
-                  Showing results for "
+                  Showing {totalItems} results for "
                   <span className="font-bold">{searchQuery}</span>"
                 </p>
               </div>
@@ -318,9 +300,9 @@ export default function ProductSection() {
           {renderPagination()}
           <button
             onClick={() => handlePageChange(page + 1)}
-            disabled={page === filteredTotalPages}
+            disabled={page === totalPages}
             className={`rounded-xl px-6 py-3 font-semibold transition-all duration-200 ${
-              page === filteredTotalPages
+              page === totalPages
                 ? "cursor-not-allowed bg-gray-200 text-gray-400"
                 : "bg-white text-gray-700 shadow-md hover:bg-blue-50 hover:text-blue-600 hover:shadow-lg"
             }`}

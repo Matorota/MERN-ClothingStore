@@ -5,10 +5,17 @@ export type ProductType = {
   photoSrc: string;
 };
 
-const productSchema = new Schema<ProductType>({
-  title: { type: String, required: true },
-  photoSrc: { type: String, required: true },
-});
+const productSchema = new Schema<ProductType>(
+  {
+    title: { type: String, required: true, trim: true },
+    photoSrc: { type: String, required: true },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+productSchema.index({ title: "text" });
 
 const Product = mongoose.model<ProductType>("Product", productSchema);
 
