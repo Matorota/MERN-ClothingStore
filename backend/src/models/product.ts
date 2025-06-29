@@ -5,15 +5,10 @@ export type ProductType = {
   photoSrc: string;
 };
 
-const productSchema = new Schema<ProductType>(
-  {
-    title: { type: String, required: true, trim: true },
-    photoSrc: { type: String, required: true },
-  },
-  {
-    timestamps: true,
-  }
-);
+const productSchema = new Schema<ProductType>({
+  title: { type: String, required: true, trim: true },
+  photoSrc: { type: String, required: true },
+});
 
 productSchema.index({ title: "text" });
 
