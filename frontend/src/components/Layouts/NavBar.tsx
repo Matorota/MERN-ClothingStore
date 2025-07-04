@@ -33,7 +33,7 @@ export default function NavBar() {
             to="/support"
             className="rounded px-2 py-1 font-semibold text-gray-700 transition hover:bg-blue-50 hover:text-blue-700"
           >
-            Support
+            Contact
           </Link>
           <Link
             to="/product"
