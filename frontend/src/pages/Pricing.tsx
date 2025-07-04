@@ -1,6 +1,6 @@
 export default function Pricing() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-16">
+    <main className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 py-16">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-16 text-center">
           <h1 className="mb-6 text-6xl font-extrabold text-gray-900">
