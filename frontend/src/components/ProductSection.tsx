@@ -1,11 +1,12 @@
 import { useEffect, useState, useTransition } from "react";
 import { Product, ProductInput } from "../types/product";
-import { getProducts, postProduct, deleteProduct } from "../api/product";
+import { postProduct, deleteProduct } from "../api/product";
 import { isResponseError } from "../utils/error";
 import { useNavigate } from "react-router-dom";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../constants";
 import { getPaginationRange } from "../utils/paginationRange";
 import ProductSearch from "../utils/ProductSeach";
+import ProductFilter from "./ProductFilter";
 
 export default function ProductSection() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -24,24 +25,46 @@ export default function ProductSection() {
   });
 
   const [search, setSearch] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({
+    search: "",
+    category: "all",
+    sortBy: "_id",
+    sortOrder: "desc",
+  });
 
   const navigate = useNavigate();
 
   const fetchProducts = async (
-    searchTerm: string = "",
     currentPage: number = page,
+    searchTerm: string = filters.search,
+    currentFilters = filters,
   ) => {
     startTransition(async () => {
-      const response = await getProducts(currentPage, pageSize, searchTerm);
-      if (isResponseError(response)) {
-        setErrorMessage(response.error.message);
+      const searchParam = searchTerm
+        ? `&search=${encodeURIComponent(searchTerm)}`
+        : "";
+      const categoryParam =
+        currentFilters.category !== "all"
+          ? `&category=${currentFilters.category}`
+          : "";
+      const sortByParam = `&sortBy=${currentFilters.sortBy}`;
+      const sortOrderParam = `&sortOrder=${currentFilters.sortOrder}`;
+
+      const queryString = `page=${currentPage}&pageSize=${pageSize}${searchParam}${categoryParam}${sortByParam}${sortOrderParam}`;
+
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_SERVER_URL}/api/products?${queryString}`,
+      );
+      const data = await response.json();
+
+      if (data.error) {
+        setErrorMessage(data.error);
         return;
       }
 
-      setProducts(response.data.products);
-      setTotalPages(response.data.pagination.totalPages);
-      setTotalItems(response.data.pagination.totalItems);
+      setProducts(data.products || []);
+      setTotalPages(data.pagination?.totalPages || 1);
+      setTotalItems(data.pagination?.totalItems || 0);
       setErrorMessage("");
       setHasChanged(false);
     });
@@ -49,20 +72,30 @@ export default function ProductSection() {
 
   useEffect(() => {
     if (hasChanged) {
-      fetchProducts(searchQuery, page);
+      fetchProducts(page, filters.search, filters);
     }
   }, [hasChanged, page]);
 
   useEffect(() => {
-    fetchProducts(searchQuery, 1);
+    fetchProducts(1, filters.search, filters);
     setPage(1);
-  }, [searchQuery]);
+  }, [filters]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage > 0 && newPage <= totalPages) {
       setPage(newPage);
       setHasChanged(true);
     }
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearch(query);
+    setFilters((prev) => ({ ...prev, search: query }));
+  };
+
+  const handleFilterChange = (newFilters: typeof filters) => {
+    setFilters(newFilters);
+    setSearch(newFilters.search);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,7 +154,7 @@ export default function ProductSection() {
     return products.map((product) => (
       <div
         key={product._id}
-        className="flex w-64 flex-col items-center overflow-hidden rounded-lg border border-slate-200 shadow-md"
+        className="flex w-64 flex-col items-center overflow-hidden rounded-lg border border-slate-200 shadow-md transition-shadow hover:shadow-lg"
       >
         <div className="h-80 w-full">
           <img
@@ -199,7 +232,7 @@ export default function ProductSection() {
           </p>
         </div>
 
-        <div className="mb-10 flex justify-center">
+        <div className="mb-8 flex justify-center">
           <div className="w-full max-w-2xl rounded-2xl border border-white/30 bg-white/80 p-6 shadow-xl backdrop-blur-sm">
             <h3 className="mb-4 text-center text-lg font-semibold text-gray-800">
               Search Products
@@ -207,25 +240,35 @@ export default function ProductSection() {
             <div className="flex flex-col items-center">
               <ProductSearch
                 value={search}
-                onSearch={(query) => {
-                  setSearch(query);
-                  setSearchQuery(query);
-                }}
-                onClear={() => {
-                  setSearch("");
-                  setSearchQuery("");
-                }}
+                onSearch={handleSearchChange}
+                onClear={() => handleSearchChange("")}
               />
             </div>
-            {searchQuery && (
+            {filters.search && (
               <div className="mt-4 rounded-lg bg-blue-50 p-3 text-center">
                 <p className="text-sm text-blue-700">
                   Showing {totalItems} results for "
-                  <span className="font-bold">{searchQuery}</span>"
+                  <span className="font-bold">{filters.search}</span>"
                 </p>
               </div>
             )}
           </div>
+        </div>
+
+        <ProductFilter
+          onFilterChange={handleFilterChange}
+          currentFilters={filters}
+        />
+
+        <div className="mb-6 text-center">
+          <p className="text-gray-600">
+            Showing {products.length} of {totalItems} products
+            {filters.category !== "all" && (
+              <span className="ml-2 rounded-full bg-green-100 px-3 py-1 text-sm text-green-800">
+                Category: {filters.category}
+              </span>
+            )}
+          </p>
         </div>
 
         <div className="mb-10 text-center">
