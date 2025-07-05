@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 export default function Description() {
   return (
     <main className="w-full bg-white">
