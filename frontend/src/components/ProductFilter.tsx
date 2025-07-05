@@ -1,3 +1,4 @@
+// d:\Programing\5-29-2025\Mern-main\frontend\src\components\ProductFilter.tsx
 import { useState, useEffect } from "react";
 
 interface Category {
@@ -67,153 +68,326 @@ export default function ProductFilter({
     currentFilters.sortOrder !== "desc";
 
   return (
-    <div className="mx-auto mb-8 w-full max-w-4xl">
-      <div className="mb-4 flex items-center justify-between">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 shadow-md transition-shadow hover:shadow-lg"
-        >
-          <svg
-            className="h-5 w-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"
-            />
-          </svg>
-          Filters{" "}
-          {hasActiveFilters && (
-            <span className="rounded-full bg-blue-500 px-2 py-1 text-xs text-white">
-              Active
-            </span>
-          )}
-          <svg
-            className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
-
-        {hasActiveFilters && (
+    <div className="w-full">
+      <div className="mb-6 flex items-center justify-center">
+        <div className="flex items-center gap-4">
           <button
-            onClick={clearFilters}
-            className="text-sm font-medium text-red-600 hover:text-red-800"
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-6 py-3 font-semibold text-gray-700 shadow-md transition-all hover:border-gray-300 hover:shadow-lg"
           >
-            Clear All Filters
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"
+              />
+            </svg>
+            <span>Filter Products</span>
+            {hasActiveFilters && (
+              <span className="rounded-full bg-blue-500 px-3 py-1 text-xs font-bold text-white">
+                {
+                  Object.values(currentFilters).filter(
+                    (v) =>
+                      v !== "" && v !== "all" && v !== "_id" && v !== "desc",
+                  ).length
+                }
+              </span>
+            )}
+            <svg
+              className={`h-4 w-4 transition-transform duration-300 ${
+                isOpen ? "rotate-180" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
           </button>
-        )}
+
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 font-medium text-red-600 transition-colors hover:bg-red-100"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+              Clear All
+            </button>
+          )}
+        </div>
       </div>
 
       {isOpen && (
-        <div className="rounded-2xl bg-white p-6 shadow-xl">
-          <div className="grid gap-6 md:grid-cols-3">
-            <div>
-              <label className="mb-3 block text-sm font-semibold text-gray-700">
-                Category
-              </label>
-              <select
-                value={currentFilters.category}
-                onChange={(e) => handleFilterChange("category", e.target.value)}
-                className="w-full rounded-lg border-2 border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none"
-              >
-                {categories.map((category) => (
-                  <option key={category.value} value={category.value}>
-                    {category.label} ({category.count})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-3 block text-sm font-semibold text-gray-700">
-                Sort By
-              </label>
-              <select
-                value={currentFilters.sortBy}
-                onChange={(e) => handleFilterChange("sortBy", e.target.value)}
-                className="w-full rounded-lg border-2 border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none"
-              >
-                <option value="_id">Date Added</option>
-                <option value="title">Name (A-Z)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-3 block text-sm font-semibold text-gray-700">
-                Order
-              </label>
-              <select
-                value={currentFilters.sortOrder}
-                onChange={(e) =>
-                  handleFilterChange("sortOrder", e.target.value)
-                }
-                className="w-full rounded-lg border-2 border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none"
-              >
-                <option value="desc">Newest First</option>
-                <option value="asc">Oldest First</option>
-              </select>
-            </div>
+        <div className="mx-auto mb-8 max-w-4xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
+          <div className="bg-gradient-to-r from-gray-800 to-gray-700 px-8 py-6">
+            <h3 className="text-center text-2xl font-bold text-white">
+              Refine Your Search
+            </h3>
+            <p className="mt-1 text-center text-gray-300">
+              Use filters to find exactly what you're looking for
+            </p>
           </div>
 
-          {hasActiveFilters && (
-            <div className="mt-6 border-t border-gray-200 pt-6">
-              <h4 className="mb-3 text-sm font-semibold text-gray-700">
-                Active Filters:
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {currentFilters.search && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
-                    Search: "{currentFilters.search}"
-                    <button
-                      onClick={() => handleFilterChange("search", "")}
-                      className="hover:text-blue-600"
+          <div className="p-8">
+            <div className="grid gap-8 md:grid-cols-3">
+              <div className="space-y-3">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="rounded-xl bg-blue-100 p-3">
+                    <svg
+                      className="h-5 w-5 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      ×
-                    </button>
-                  </span>
-                )}
-                {currentFilters.category !== "all" && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-sm text-green-800">
-                    {
-                      categories.find(
-                        (c) => c.value === currentFilters.category,
-                      )?.label
-                    }
-                    <button
-                      onClick={() => handleFilterChange("category", "all")}
-                      className="hover:text-green-600"
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <label className="text-lg font-bold text-gray-800">
+                      Category
+                    </label>
+                    <p className="text-sm text-gray-600">
+                      Filter by product type
+                    </p>
+                  </div>
+                </div>
+                <select
+                  value={currentFilters.category}
+                  onChange={(e) =>
+                    handleFilterChange("category", e.target.value)
+                  }
+                  className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 font-medium shadow-sm transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-200 focus:outline-none"
+                >
+                  {categories.map((category) => (
+                    <option key={category.value} value={category.value}>
+                      {category.label} ({category.count})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-3">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="rounded-xl bg-green-100 p-3">
+                    <svg
+                      className="h-5 w-5 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      ×
-                    </button>
-                  </span>
-                )}
-                {currentFilters.sortBy !== "_id" && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-sm text-purple-800">
-                    Sort: {currentFilters.sortBy === "title" ? "Name" : "Date"}
-                    <button
-                      onClick={() => handleFilterChange("sortBy", "_id")}
-                      className="hover:text-purple-600"
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <label className="text-lg font-bold text-gray-800">
+                      Sort By
+                    </label>
+                    <p className="text-sm text-gray-600">Order your results</p>
+                  </div>
+                </div>
+                <select
+                  value={currentFilters.sortBy}
+                  onChange={(e) => handleFilterChange("sortBy", e.target.value)}
+                  className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 font-medium shadow-sm transition-all focus:border-green-500 focus:ring-4 focus:ring-green-200 focus:outline-none"
+                >
+                  <option value="_id">Date Added</option>
+                  <option value="title">Name (A-Z)</option>
+                </select>
+              </div>
+
+              <div className="space-y-3">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="rounded-xl bg-purple-100 p-3">
+                    <svg
+                      className="h-5 w-5 text-purple-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      ×
-                    </button>
-                  </span>
-                )}
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <label className="text-lg font-bold text-gray-800">
+                      Order
+                    </label>
+                    <p className="text-sm text-gray-600">Sort direction</p>
+                  </div>
+                </div>
+                <select
+                  value={currentFilters.sortOrder}
+                  onChange={(e) =>
+                    handleFilterChange("sortOrder", e.target.value)
+                  }
+                  className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 font-medium shadow-sm transition-all focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:outline-none"
+                >
+                  <option value="desc">Newest First</option>
+                  <option value="asc">Oldest First</option>
+                </select>
               </div>
             </div>
-          )}
+
+            {hasActiveFilters && (
+              <div className="mt-8 rounded-2xl border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50 p-6">
+                <h4 className="mb-4 flex items-center justify-center gap-2 text-center text-lg font-bold text-gray-800">
+                  <svg
+                    className="h-5 w-5 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  Active Filters
+                </h4>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {currentFilters.search && (
+                    <span className="inline-flex items-center gap-2 rounded-xl bg-blue-500 px-4 py-2 font-semibold text-white shadow-lg">
+                      Search: "{currentFilters.search}"
+                      <button
+                        onClick={() => handleFilterChange("search", "")}
+                        className="rounded-full bg-white/20 p-1 transition-colors hover:bg-white/30"
+                      >
+                        <svg
+                          className="h-3 w-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </span>
+                  )}
+                  {currentFilters.category !== "all" && (
+                    <span className="inline-flex items-center gap-2 rounded-xl bg-green-500 px-4 py-2 font-semibold text-white shadow-lg">
+                      {
+                        categories.find(
+                          (c) => c.value === currentFilters.category,
+                        )?.label
+                      }
+                      <button
+                        onClick={() => handleFilterChange("category", "all")}
+                        className="rounded-full bg-white/20 p-1 transition-colors hover:bg-white/30"
+                      >
+                        <svg
+                          className="h-3 w-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </span>
+                  )}
+                  {currentFilters.sortBy !== "_id" && (
+                    <span className="inline-flex items-center gap-2 rounded-xl bg-purple-500 px-4 py-2 font-semibold text-white shadow-lg">
+                      Sort:{" "}
+                      {currentFilters.sortBy === "title" ? "Name" : "Date"}
+                      <button
+                        onClick={() => handleFilterChange("sortBy", "_id")}
+                        className="rounded-full bg-white/20 p-1 transition-colors hover:bg-white/30"
+                      >
+                        <svg
+                          className="h-3 w-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </span>
+                  )}
+                  {currentFilters.sortOrder !== "desc" && (
+                    <span className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2 font-semibold text-white shadow-lg">
+                      Order:{" "}
+                      {currentFilters.sortOrder === "asc"
+                        ? "Oldest First"
+                        : "Newest First"}
+                      <button
+                        onClick={() => handleFilterChange("sortOrder", "desc")}
+                        className="rounded-full bg-white/20 p-1 transition-colors hover:bg-white/30"
+                      >
+                        <svg
+                          className="h-3 w-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
