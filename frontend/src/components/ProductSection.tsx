@@ -5,7 +5,6 @@ import { isResponseError } from "../utils/error";
 import { useNavigate } from "react-router-dom";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../constants";
 import { getPaginationRange } from "../utils/paginationRange";
-import ProductSearch from "../utils/ProductSeach";
 import ProductFilter from "./ProductFilter";
 
 type UserMode = "buyer" | "seller" | null;
@@ -21,7 +20,7 @@ export default function ProductSection() {
   const [password, setPassword] = useState("");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [sellerToken, setSellerToken] = useState<string | null>(null);
+  const [, setSellerToken] = useState<string | null>(null);
 
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState("");
@@ -31,7 +30,6 @@ export default function ProductSection() {
     photoSrc: "",
   });
 
-  const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
     search: "",
     category: "all",
@@ -181,7 +179,6 @@ export default function ProductSection() {
       sortBy: "_id",
       sortOrder: "desc",
     });
-    setSearch("");
   };
 
   const handlePageChange = (newPage: number) => {
@@ -191,14 +188,8 @@ export default function ProductSection() {
     }
   };
 
-  const handleSearchChange = (query: string) => {
-    setSearch(query);
-    setFilters((prev) => ({ ...prev, search: query }));
-  };
-
   const handleFilterChange = (newFilters: typeof filters) => {
     setFilters(newFilters);
-    setSearch(newFilters.search);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -246,61 +237,70 @@ export default function ProductSection() {
   };
 
   const renderProductSectionContent = () => {
-    if (isPending) return <p className="text-lg text-gray-600">Loading...</p>;
+    if (isPending)
+      return <p className="text-center text-lg text-gray-600">Loading...</p>;
     if (errorMessage)
-      return <p className="text-lg text-red-600">{errorMessage}</p>;
+      return <p className="text-center text-lg text-red-600">{errorMessage}</p>;
 
     if (products.length === 0) {
-      return <p className="text-lg text-gray-600">No products found.</p>;
+      return (
+        <p className="text-center text-lg text-gray-600">No products found.</p>
+      );
     }
 
     return products.map((product) => (
       <div
         key={product._id}
-        className="flex w-64 flex-col items-center overflow-hidden rounded-lg border border-slate-200 shadow-md transition-shadow hover:shadow-lg"
+        className="mx-auto flex w-full max-w-xs flex-col items-center overflow-hidden rounded-lg border border-slate-200 bg-white shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl"
       >
-        <div className="h-80 w-full">
+        <div className="relative aspect-square w-full overflow-hidden">
           <img
             src={product.photoSrc}
             alt={product.title}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition-transform duration-300 hover:scale-110"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src =
                 "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png?v=1530129081";
             }}
           />
-        </div>
-        <div className="p-2">
-          <p className="text-center font-medium">{product.title}</p>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-300 hover:opacity-100" />
         </div>
 
-        {userMode === "seller" && (
-          <div className="mt-auto flex gap-4 pb-4">
-            <button
-              className="rounded-md bg-blue-500 px-3 py-1 text-sm font-medium text-white hover:bg-blue-600"
-              onClick={() => navigate(`/update-product/${product._id}`)}
-            >
-              Update
-            </button>
-            <button
-              className="rounded-md bg-red-500 px-3 py-1 text-sm font-medium text-white hover:bg-red-600"
-              onClick={() => handleDeleteProduct(product._id)}
-            >
-              Delete
-            </button>
-          </div>
-        )}
+        <div className="w-full bg-white p-4">
+          <h3 className="line-clamp-2 flex min-h-[3.5rem] items-center justify-center text-center text-lg leading-tight font-bold text-gray-900">
+            {product.title}
+          </h3>
+        </div>
 
-        {userMode === "buyer" && (
-          <div className="mt-auto flex gap-4 pb-4">
-            <button className="rounded-md bg-green-500 px-3 py-1 text-sm font-medium text-white hover:bg-green-600">
-              Buy Now
-            </button>
-            <button className="rounded-md bg-purple-500 px-3 py-1 text-sm font-medium text-white hover:bg-purple-600">
-              Add to Cart
-            </button>
-          </div>
-        )}
+        <div className="w-full px-4 pb-4">
+          {userMode === "seller" && (
+            <div className="flex w-full gap-2">
+              <button
+                className="flex-1 rounded-lg bg-blue-500 px-3 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-blue-600"
+                onClick={() => navigate(`/update-product/${product._id}`)}
+              >
+                Update
+              </button>
+              <button
+                className="flex-1 rounded-lg bg-red-500 px-3 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-red-600"
+                onClick={() => handleDeleteProduct(product._id)}
+              >
+                Delete
+              </button>
+            </div>
+          )}
+
+          {userMode === "buyer" && (
+            <div className="flex w-full gap-2">
+              <button className="flex-1 rounded-lg bg-green-500 px-3 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-green-600">
+                Buy Now
+              </button>
+              <button className="flex-1 rounded-lg bg-purple-500 px-3 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-purple-600">
+                Add to Cart
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     ));
   };
@@ -309,7 +309,7 @@ export default function ProductSection() {
     const paginationRange = getPaginationRange(page, totalPages);
 
     return (
-      <div className="flex items-center gap-2">
+      <div className="hidden items-center gap-2 sm:flex">
         {paginationRange.map((item, index) => {
           if (typeof item === "string") {
             return (
@@ -511,15 +511,15 @@ export default function ProductSection() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <div className="border-b border-gray-200 bg-white shadow-sm">
-        <div className="mx-auto max-w-7xl px-6 py-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="mb-2 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-4xl font-bold text-transparent">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <div className="text-center sm:text-left">
+              <h1 className="mb-2 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl">
                 {userMode === "buyer"
                   ? "Discover Products"
                   : "Product Management"}
               </h1>
-              <p className="text-lg text-gray-600">
+              <p className="text-base text-gray-600 sm:text-lg">
                 {userMode === "buyer"
                   ? "Explore our carefully curated collection of premium products"
                   : "Efficiently manage your product inventory and catalog"}
@@ -548,38 +548,42 @@ export default function ProductSection() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-8">
-        <div className="mb-10 flex flex-col items-center space-y-8">
-          <div className="w-full max-w-2xl">
-            <div className="mb-4 text-center">
-              <h2 className="mb-2 text-xl font-semibold text-gray-800">
-                Search Products
-              </h2>
-              <p className="text-gray-600">
-                Find exactly what you're looking for
-              </p>
-            </div>
-            <ProductSearch
-              value={search}
-              onSearch={handleSearchChange}
-              onClear={() => handleSearchChange("")}
-            />
-          </div>
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        <div className="mb-10">
+          <ProductFilter
+            onFilterChange={handleFilterChange}
+            currentFilters={filters}
+          />
+        </div>
 
-          <div className="w-full max-w-4xl">
-            <ProductFilter
-              onFilterChange={handleFilterChange}
-              currentFilters={filters}
-            />
-          </div>
-
-          <div className="flex items-center gap-4 text-gray-600">
-            <span>
-              Showing {products.length} of {totalItems} products
+        <div className="mb-6 flex justify-center">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-600 sm:text-base">
+            <span className="flex items-center gap-2">
+              <svg
+                className="h-5 w-5 flex-shrink-0 text-blue-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
+              <span className="whitespace-nowrap">
+                Showing {products.length} of {totalItems} products
+              </span>
             </span>
             {filters.category !== "all" && (
-              <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
+              <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium whitespace-nowrap text-blue-800">
                 Category: {filters.category}
+              </span>
+            )}
+            {filters.search && (
+              <span className="rounded-full bg-purple-100 px-3 py-1 text-sm font-medium whitespace-nowrap text-purple-800">
+                Search: "{filters.search}"
               </span>
             )}
           </div>
@@ -589,7 +593,7 @@ export default function ProductSection() {
           <div className="mb-10 text-center">
             <button
               onClick={() => setShowAddForm(!showAddForm)}
-              className="rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-3 font-semibold text-white shadow-lg transition-all hover:from-green-700 hover:to-emerald-700 hover:shadow-xl"
+              className="rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:from-green-700 hover:to-emerald-700 hover:shadow-xl sm:px-8"
             >
               {showAddForm ? "Cancel" : "Add New Product"}
             </button>
@@ -597,8 +601,8 @@ export default function ProductSection() {
         )}
 
         {showAddForm && userMode === "seller" && (
-          <div className="mx-auto mb-10 max-w-lg rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
-            <h2 className="mb-6 text-center text-2xl font-bold text-gray-900">
+          <div className="mx-auto mb-10 max-w-lg rounded-2xl border border-gray-200 bg-white p-6 shadow-lg sm:p-8">
+            <h2 className="mb-6 text-center text-xl font-bold text-gray-900 sm:text-2xl">
               Create New Product
             </h2>
             <div className="space-y-6">
@@ -611,7 +615,7 @@ export default function ProductSection() {
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
-                  className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 focus:border-green-500 focus:ring-4 focus:ring-green-200 focus:outline-none"
+                  className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm focus:border-green-500 focus:ring-4 focus:ring-green-200 focus:outline-none sm:text-base"
                   placeholder="Enter product name..."
                 />
               </div>
@@ -624,7 +628,7 @@ export default function ProductSection() {
                   name="photoSrc"
                   value={formData.photoSrc}
                   onChange={handleInputChange}
-                  className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 focus:border-green-500 focus:ring-4 focus:ring-green-200 focus:outline-none"
+                  className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm focus:border-green-500 focus:ring-4 focus:ring-green-200 focus:outline-none sm:text-base"
                   placeholder="Paste image URL here..."
                 />
               </div>
@@ -638,18 +642,18 @@ export default function ProductSection() {
           </div>
         )}
 
-        <div className="mb-10 rounded-2xl bg-white p-8 shadow-lg">
-          <div className="flex flex-wrap justify-center gap-6">
+        <div className="mb-10 rounded-2xl bg-white p-4 shadow-lg sm:p-6 lg:p-8">
+          <div className="grid grid-cols-1 place-items-center gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
             {renderProductSectionContent()}
           </div>
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-6">
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
             <button
               onClick={() => handlePageChange(page - 1)}
               disabled={page === 1}
-              className={`rounded-xl px-6 py-3 font-semibold transition-all ${
+              className={`w-full rounded-xl px-4 py-3 font-semibold transition-all sm:w-auto sm:px-6 ${
                 page === 1
                   ? "cursor-not-allowed bg-gray-200 text-gray-400"
                   : "bg-white text-gray-700 shadow-md hover:bg-gray-50 hover:shadow-lg"
@@ -657,11 +661,17 @@ export default function ProductSection() {
             >
               Previous
             </button>
+
             {renderPagination()}
+
+            <div className="text-sm text-gray-600 sm:hidden">
+              Page {page} of {totalPages}
+            </div>
+
             <button
               onClick={() => handlePageChange(page + 1)}
               disabled={page === totalPages}
-              className={`rounded-xl px-6 py-3 font-semibold transition-all ${
+              className={`w-full rounded-xl px-4 py-3 font-semibold transition-all sm:w-auto sm:px-6 ${
                 page === totalPages
                   ? "cursor-not-allowed bg-gray-200 text-gray-400"
                   : "bg-white text-gray-700 shadow-md hover:bg-gray-50 hover:shadow-lg"

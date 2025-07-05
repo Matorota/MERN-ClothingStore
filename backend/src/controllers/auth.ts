@@ -1,4 +1,3 @@
-// d:\Programing\5-29-2025\Mern-main\backend\src\controllers\auth.ts
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
