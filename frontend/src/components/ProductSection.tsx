@@ -26,7 +26,7 @@ export default function ProductSection() {
   const [userMode, setUserMode] = useState<UserMode>(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [sellerToken, setSellerToken] = useState<string | null>(null);
+  const [, setSellerToken] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showImageModal, setShowImageModal] = useState(false);
   const [isPending, startTransition] = useTransition();
