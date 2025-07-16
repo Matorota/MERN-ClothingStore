@@ -9,6 +9,7 @@ This is a simple full-stack MERN template built with TypeScript. It provides a r
 - **Express.js** as the backend server
 - **MongoDB** with **Mongoose** for the database
 - **TypeScript** used in both the frontend and backend
+- **Cucumber** used for testing API issue's 
 
 ## Features
 
